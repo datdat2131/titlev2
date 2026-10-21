@@ -1,0 +1,44 @@
+# ===== AstraxTitles =====
+# Mục tiêu hiển thị trong Tab:   [Rank] Steve | ✦ ᴛᴀɴ ᴛʜᴜ
+#
+# CÁCH 1 (khuyên dùng khi server có plugin TAB + LuckPerms): để tab.enabled = false và đặt trong plugins/TAB/groups.yml:
+#   _DEFAULT_:
+#     tabprefix: "%luckperms-prefix%"
+#     tabsuffix: "%astraxtitles_suffix%"
+#   (xem README, cần PlaceholderAPI)
+# CÁCH 2 (không có plugin quản lý Tab): tab.enabled = true, plugin tự thêm danh hiệu vào tên trong Tab.
+tab:
+  enabled: false                 # true = chế độ dựng sẵn (Cách 2). Đừng bật cùng lúc với plugin TAB.
+  position: AFTER                # AFTER = sau tên "Tên | danh hiệu" ; BEFORE = trước tên "danh hiệu | Tên"
+  small-caps: true               # tự đổi chữ danh hiệu sang in hoa nhỏ (bỏ dấu tiếng Việt)
+  suffix-format: " &8| %title%"  # dạng hậu tố, %title% = display trong titles.yml
+  title-format: "%title% &8| &r" # dạng tiền tố (dùng khi position: BEFORE hoặc %astraxtitles_prefix%)
+# Chat: mặc định TẮT (danh hiệu chỉ hiện ở Tab)
+chat:
+  enabled: false
+  format: "{title}{player}&7: &f{message}"
+  small-caps: false
+  title-format: "&8[%title%&8] "
+buffs:
+  enabled: true
+auto-equip-first: true           # tự đeo danh hiệu đầu tiên khi chưa đeo cái nào
+announce-min-rarity: LEGENDARY   # độ hiếm từ mức này trở lên sẽ thông báo toàn server
+autosave-minutes: 5
+poll-seconds: 5                  # bao lâu kiểm tra nhiệm vụ "mở khóa nguyên tố" của plugin khác (giây)
+anti-farm:
+  same-victim-seconds: 120       # hạ gục cùng một người chơi chỉ tính lại sau ngần này giây
+boss-credit-percent: 5           # nhiệm vụ BOSS_KILL: gây >= % máu boss thì được tính (như ngưỡng thưởng của Elementer)
+max-damage-reduction: 80         # trần % giảm sát thương nhận từ nội tại
+travel:
+  max-sample-blocks: 150         # bước nhảy quá lớn trong 2 giây coi là dịch chuyển, không tính
+  count-creative: false          # có tính di chuyển ở chế độ Creative không
+# Nguyên tố của boss AstraxElementer, dùng cho nội tại DAMAGE_REDUCTION_FROM_ELEMENT
+boss-elements:
+  fire_lord: FIRE
+  ice_queen: ICE
+  thunder_god: LIGHTNING
+  stone_guardian: EARTH
+  wind_lord: WIND
+  light_paladin: LIGHT
+  dark_lord: DARK
+  dragon_lord: DRAGON

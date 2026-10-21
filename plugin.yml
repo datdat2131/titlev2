@@ -1,0 +1,27 @@
+name: AstraxTitles
+version: ${project.version}
+main: vn.astrax.titles.AstraxTitlesPlugin
+api-version: '1.21'
+description: Danh hiệu và thành tựu có buff, hiển thị trước tên trong chat.
+author: Astrax
+softdepend: [PlaceholderAPI]
+commands:
+  title:
+    description: Mở menu danh hiệu.
+    usage: /title [menu|equip <id>|off|list]
+    aliases: [titles, danhhieu]
+    permission: astraxtitles.use
+  titleadmin:
+    description: Quản trị danh hiệu.
+    usage: /titleadmin <reload|list|give|take|progress>
+    permission: astraxtitles.admin
+permissions:
+  astraxtitles.use:
+    description: Dùng /title.
+    default: true
+  astraxtitles.admin:
+    description: Dùng /titleadmin.
+    default: op
+  astraxtitles.title.*:
+    description: Mở khóa mọi danh hiệu loại PERMISSION.
+    default: false

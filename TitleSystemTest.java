@@ -1,6 +1,7 @@
 package vn.astrax.titles;
 
 import org.junit.jupiter.api.Test;
+import vn.astrax.titles.config.TitleMerger;
 import vn.astrax.titles.model.*;
 
 import java.util.*;
@@ -165,5 +166,30 @@ class TitleSystemTest {
     @Test void mobDamagePassiveDescription() {
         assertTrue(new PassiveDef(PassiveType.DAMAGE_VS_MOB_PERCENT, "Săn Quái", 10, 0, 100, 0, 0, 0, null).describe().contains("+10% sát thương lên quái vật"));
         assertTrue(new PassiveDef(PassiveType.DAMAGE_VS_MOB_PERCENT, null, 20, 0, 100, 0, 0, 0, "WITHER_SKELETON").describe().contains("Wither Skeleton"));
+    }
+    static final String DEF = "# header\ntitles:\n  # ==== G1\n  a:\n    display: \"A\"\n    buffs: { x: 1 }\n\n  b:\n    display: \"B\"\n    # ghi chú trong khối\n    rarity: RARE\n\n  # ==== G2\n  c:\n    display: \"C\"\n\n  d:\n    display: \"D\"\n";
+    static final String USER = "# my header\ntitles:\n  a:\n    display: \"MY A\"   # tui sửa\n    buffs: { x: 99 }\n\n  custom:\n    display: \"Của tui\"\n\n  c:\n    display: \"My C\"\n";
+    static List<String> ids(String yaml) { List<String> o = new ArrayList<>(); for (String l : yaml.split("\n")) if (l.matches("^  [a-z_]+:\\s*$")) o.add(l.trim().replace(":", "")); return o; }
+
+    @Test void updateConfigAddsOnlyMissingTitlesInRankPosition() {
+        var r = TitleMerger.merge(USER, DEF, Set.of());
+        assertEquals(List.of("b", "d"), r.added());
+        assertEquals(List.of("a", "b", "custom", "c", "d"), ids(r.merged())); // b ngay sau a (theo bản mặc định), d sau c
+        assertTrue(r.merged().contains("display: \"MY A\"   # tui sửa")); assertTrue(r.merged().contains("buffs: { x: 99 }")); // dữ liệu cũ giữ nguyên
+        assertFalse(r.merged().contains("buffs: { x: 1 }")); assertTrue(r.merged().contains("# ghi chú trong khối")); assertTrue(r.merged().startsWith("# my header"));
+    }
+    @Test void updateConfigIsIdempotentAndRespectsIgnoreList() {
+        String once = TitleMerger.merge(USER, DEF, Set.of()).merged();
+        assertTrue(TitleMerger.merge(once, DEF, Set.of()).added().isEmpty()); assertEquals(once, TitleMerger.merge(once, DEF, Set.of()).merged());
+        var r = TitleMerger.merge(USER, DEF, Set.of("b")); assertEquals(List.of("d"), r.added()); assertFalse(ids(r.merged()).contains("b"));
+    }
+    @Test void updateConfigInsertsNewFirstTitleAtTop() {
+        String user = "titles:\n  b:\n    display: \"B\"\n";
+        var r = TitleMerger.merge(user, DEF, Set.of());
+        assertEquals("a", ids(r.merged()).get(0)); assertEquals(List.of("a", "b", "c", "d"), ids(r.merged())); assertEquals(List.of("a", "c", "d"), r.added());
+    }
+    @Test void updateConfigRejectsBrokenFiles() {
+        assertThrows(IllegalArgumentException.class, () -> TitleMerger.merge("khong co muc nao\n", DEF, Set.of()));
+        assertThrows(IllegalArgumentException.class, () -> TitleMerger.merge(USER, "khong co\n", Set.of()));
     }
 }

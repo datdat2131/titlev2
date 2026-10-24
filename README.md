@@ -1,4 +1,4 @@
-# AstraxTitles 1.4.0 - Danh hiệu nhiệm vụ cho BoxMine RPG
+# AstraxTitles 1.5.0 - Danh hiệu nhiệm vụ cho BoxMine RPG
 
 Danh hiệu mở khóa bằng nhiệm vụ, mỗi danh hiệu có **buff** và **nội tại** riêng, hiển thị **trước tên trong Tab** (chữ in hoa nhỏ). Paper 1.21.4, Java 21.
 
@@ -94,7 +94,21 @@ NguyenTo đặt giá trị gốc (base) của máu/sát thương/tốc độ; As
 
 ## Lệnh và quyền
 `/title` (menu), `/title equip <id>`, `/title off`, `/title list` - `astraxtitles.use`.
-`/titleadmin reload | list | give <p> <id> | take <p> <id> | progress <p> <id> <nhiệm vụ#> <số> | check <p>` - `astraxtitles.admin`.
+`/titleadmin reload | updateconfig [check] | list | give <p> <id> | take <p> <id> | progress <p> <id> <nhiệm vụ#> <số> | check <p>` - `astraxtitles.admin`.
+
+## Cập nhật phiên bản mới mà không mất dữ liệu cũ (`/titleadmin updateconfig`)
+Khi có bản plugin mới thêm danh hiệu hoặc mục config mới:
+1. Tắt/thay file `AstraxTitles-x.y.z.jar` mới (KHÔNG xóa thư mục `plugins/AstraxTitles/`), bật server.
+2. Console/admin sẽ báo "Có N danh hiệu mới ... Gõ /titleadmin updateconfig".
+3. Gõ `/titleadmin updateconfig check` để xem trước, rồi `/titleadmin updateconfig` để áp dụng.
+Plugin sẽ:
+- **Thêm** danh hiệu mới vào `titles.yml` đúng thứ hạng (ngay sau danh hiệu đứng trước nó), và thêm mục mới còn thiếu vào `config.yml`.
+- **Không ghi đè** bất cứ thứ gì bạn đã sửa (tên, buff, nhiệm vụ, giá trị config), và không đụng danh hiệu bạn tự tạo.
+- **Sao lưu** trước khi ghi vào `plugins/AstraxTitles/backups/<ngày-giờ>/`, rồi tự tải lại.
+- Ghi bản mặc định mới nhất ra `titles.default.yml` / `config.default.yml` để bạn đối chiếu nếu muốn dùng giá trị mới cho danh hiệu cũ (sao chép tay).
+- Dữ liệu người chơi (danh hiệu đã mở, tiến độ) nằm trong thư mục `data/` và không bị đụng tới.
+Nếu bạn cố ý xóa một danh hiệu mặc định, thêm id của nó vào `update.ignore-titles` trong `config.yml` để `updateconfig` không thêm lại.
+Lưu ý: danh hiệu CŨ đã có trong file thì không bị sửa, kể cả khi bản mới đổi buff của nó; muốn lấy giá trị mới thì sửa tay theo `titles.default.yml`.
 
 ## Chỉnh sửa danh hiệu (tên, buff...)
 **Cách 1 - sửa file:** mở `plugins/AstraxTitles/titles.yml`, đổi `display` (tên), `description`, `rarity`, `icon`, `buffs`, `requirements`, `passives`, rồi `/titleadmin reload`.

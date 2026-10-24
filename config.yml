@@ -44,3 +44,12 @@ boss-elements:
   dragon_lord: DRAGON
 gui:
   sort: RANK                     # RANK = theo thứ hạng trong titles.yml (yếu -> mạnh) ; UNLOCKED_FIRST = danh hiệu đã mở lên trước
+# Thông báo khi mở khóa danh hiệu. Dùng mã màu &, %title% = tên danh hiệu, %player% = tên người chơi. Để trống ("") = tắt dòng đó.
+messages:
+  unlock-title: "&6&lTHÀNH TỰU"                          # chữ lớn giữa màn hình
+  unlock-subtitle: "%title%"                              # chữ nhỏ bên dưới
+  unlock-chat: "&a✦ Mở khóa danh hiệu: %title% &7(/title để đeo)"   # tin nhắn trong chat
+  unlock-broadcast: "&e%player% &7vừa đạt danh hiệu %title%&7!"      # thông báo toàn server (danh hiệu hiếm / announce: true)
+# /titleadmin updateconfig: thêm danh hiệu/mục config MỚI của bản plugin mới mà không ghi đè phần cũ (có sao lưu vào backups/).
+update:
+  ignore-titles: []              # id danh hiệu bạn cố ý xóa, vd: [kien_cuong, vip] -> updateconfig sẽ không thêm lại

@@ -42,6 +42,7 @@ public final class AstraxTitlesPlugin extends JavaPlugin {
         store = new DataStore(getDataFolder(), getLogger());
         buffs = new BuffManager(this); gui = new TitleGui(this);
         reloadAll();
+        refreshUpdateNotice();
         var pm = getServer().getPluginManager();
         passives = new PassiveListener(this); bosses = new BossListener(this); travel = new TravelTracker(this);
         pm.registerEvents(new ProgressListener(this), this); pm.registerEvents(passives, this); pm.registerEvents(bosses, this); pm.registerEvents(travel, this); pm.registerEvents(new ChatListener(this), this); pm.registerEvents(gui, this);
@@ -123,6 +124,17 @@ public final class AstraxTitlesPlugin extends JavaPlugin {
         if (d.progressOf("_streak~any") != 0) d.setProgress("_streak~any", 0);
         if (d.progressOf("_streak~player") != 0) d.setProgress("_streak~player", 0);
     }
+    private volatile String updateNotice;
+    public String updateNotice() { return updateNotice; }
+    /** Kiểm tra bản plugin mới có danh hiệu/mục config mới chưa có trong file của server (chỉ báo, không ghi gì). */
+    public void refreshUpdateNotice() {
+        try {
+            var r = new vn.astrax.titles.config.ConfigUpdater(this).check();
+            updateNotice = r.empty() ? null : "Có " + r.newTitles().size() + " danh hiệu mới" + (r.newTitles().isEmpty() ? "" : " (" + String.join(", ", r.newTitles()) + ")")
+                    + " và " + r.newKeys().size() + " mục config mới. Gõ /titleadmin updateconfig để thêm (dữ liệu cũ được giữ nguyên).";
+            if (updateNotice != null) getLogger().info(updateNotice);
+        } catch (Exception e) { updateNotice = null; }
+    }
     public TitleRegistry titles() { return registry; }
     public BuffManager buffs() { return buffs; }
     public DataStore store() { return store; }
@@ -142,14 +154,20 @@ public final class AstraxTitlesPlugin extends JavaPlugin {
         for (TitleDef t : registry.progress(d, type, key, amount)) onUnlocked(p, t);
     }
 
+    private String msg(String key, String def, TitleDef t, Player p) {
+        return getConfig().getString("messages." + key, def).replace("%title%", t.display()).replace("%player%", p.getName());
+    }
+
+    /** Thông báo khi mở khóa danh hiệu. Nội dung chỉnh trong config.yml mục "messages" (để trống = tắt). */
     public void onUnlocked(Player p, TitleDef t) {
-        Component name = AMP.deserialize(t.display());
-        p.sendMessage(Component.text("§a✦ Mở khóa danh hiệu: ").append(name).append(Component.text(" §7(/title để đeo)")));
-        p.showTitle(Title.title(Component.text("§6§lTHÀNH TỰU"), name));
+        String chat = msg("unlock-chat", "&a✦ Mở khóa danh hiệu: %title% &7(/title để đeo)", t, p);
+        String big = msg("unlock-title", "&6&lTHÀNH TỰU", t, p), sub = msg("unlock-subtitle", "%title%", t, p);
+        if (!chat.isBlank()) p.sendMessage(AMP.deserialize(chat));
+        if (!big.isBlank() || !sub.isBlank()) p.showTitle(Title.title(AMP.deserialize(big), AMP.deserialize(sub)));
         p.playSound(p.getLocation(), t.rarity().atLeast(Rarity.LEGENDARY) ? Sound.UI_TOAST_CHALLENGE_COMPLETE : Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
         Rarity min = Rarity.parse(getConfig().getString("announce-min-rarity", "LEGENDARY"));
-        if (t.announce() || t.rarity().atLeast(min))
-            Bukkit.broadcast(Component.text("§e" + p.getName() + " §7vừa đạt danh hiệu ").append(name).append(Component.text("§7!")));
+        String bc = msg("unlock-broadcast", "&e%player% &7vừa đạt danh hiệu %title%&7!", t, p);
+        if ((t.announce() || t.rarity().atLeast(min)) && !bc.isBlank()) Bukkit.broadcast(AMP.deserialize(bc));
         if (d(p) != null && d(p).selected() == null && getConfig().getBoolean("auto-equip-first", true)) equip(p, t.id());
     }
     private PlayerTitleData d(Player p) { return cache.get(p.getUniqueId()); }

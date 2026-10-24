@@ -32,7 +32,7 @@ public final class ProgressListener implements Listener {
     @EventHandler public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         PlayerTitleData d = plugin.data(p.getUniqueId()); if (d == null) return;
-        Bukkit.getScheduler().runTaskLater(plugin, () -> { if (p.isOnline()) { plugin.flushNotify(p); plugin.checkStates(p); } }, 60L); // Elementer nạp dữ liệu bất đồng bộ nên chờ ~3s
+        Bukkit.getScheduler().runTaskLater(plugin, () -> { if (p.isOnline()) { plugin.flushNotify(p); plugin.checkStates(p); if (plugin.updateNotice() != null && p.hasPermission("astraxtitles.admin")) p.sendMessage("§e[AstraxTitles] " + plugin.updateNotice()); } }, 60L); // Elementer nạp dữ liệu bất đồng bộ nên chờ ~3s
         plugin.buffs().apply(p); plugin.refreshTab(p);
     }
     @EventHandler public void onQuit(PlayerQuitEvent e) {

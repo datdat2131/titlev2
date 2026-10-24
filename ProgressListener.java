@@ -32,7 +32,7 @@ public final class ProgressListener implements Listener {
     @EventHandler public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         PlayerTitleData d = plugin.data(p.getUniqueId()); if (d == null) return;
-        Bukkit.getScheduler().runTaskLater(plugin, () -> { if (p.isOnline()) plugin.checkStates(p); }, 60L); // Elementer nạp dữ liệu bất đồng bộ nên chờ ~3s
+        Bukkit.getScheduler().runTaskLater(plugin, () -> { if (p.isOnline()) { plugin.flushNotify(p); plugin.checkStates(p); } }, 60L); // Elementer nạp dữ liệu bất đồng bộ nên chờ ~3s
         plugin.buffs().apply(p); plugin.refreshTab(p);
     }
     @EventHandler public void onQuit(PlayerQuitEvent e) {
@@ -53,7 +53,9 @@ public final class ProgressListener implements Listener {
             if (!pairs.tryAcquire(killer.getUniqueId(), victim.getUniqueId(), System.currentTimeMillis(), cd)) return;
             plugin.progress(killer, AchievementType.KILL_PLAYER, "PLAYER", 1);
             plugin.streakKill(killer, true);
-        } else { plugin.progress(killer, AchievementType.KILL_MOB, dead.getType().name(), 1); plugin.streakKill(killer, false); }
+        } else if (dead instanceof org.bukkit.entity.Enemy) { // chỉ quái thù địch (không tính động vật)
+            plugin.progress(killer, AchievementType.KILL_MOB, dead.getType().name(), 1); plugin.streakKill(killer, false);
+        }
     }
     @EventHandler public void onPlayerDeath(org.bukkit.event.entity.PlayerDeathEvent e) { plugin.resetStreak(e.getEntity()); }
 }

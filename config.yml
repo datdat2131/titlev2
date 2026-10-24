@@ -42,3 +42,5 @@ boss-elements:
   light_paladin: LIGHT
   dark_lord: DARK
   dragon_lord: DRAGON
+gui:
+  sort: RANK                     # RANK = theo thứ hạng trong titles.yml (yếu -> mạnh) ; UNLOCKED_FIRST = danh hiệu đã mở lên trước

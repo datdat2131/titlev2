@@ -24,6 +24,8 @@ public record Requirement(AchievementType type, String filter, long target, Stri
     public static String elementerName(String f) { return f == null ? "?" : ELEMENTER.getOrDefault(f.toUpperCase(java.util.Locale.ROOT), f); }
     public static String nguyentoName(String f) { return f == null ? "?" : NGUYENTO.getOrDefault(f.toLowerCase(java.util.Locale.ROOT), f); }
 
+    public static String money(long v) { return String.format(java.util.Locale.US, "%,d", v).replace(',', '.'); }
+
     /** Mô tả hiển thị trong GUI; có thể ghi đè bằng "label" trong titles.yml. */
     public String describe() {
         if (label != null && !label.isBlank()) return label;
@@ -38,6 +40,7 @@ public record Requirement(AchievementType type, String filter, long target, Stri
             case NGUYENTO_UNLOCK -> "Mở khóa nguyên tố " + nguyentoName(filter) + " (plugin NguyenTo)";
             case TRAVEL_BLOCKS -> "Di chuyển " + target + " block";
             case KILL_STREAK -> "Đạt chuỗi hạ gục " + target + ("ANY".equalsIgnoreCase(filter) ? " (tính cả quái)" : " người chơi liên tiếp") + ", không chết";
+            case DONATE_TOTAL -> "Nạp tổng cộng " + money(target) + "đ";
             case PERMISSION_NODE -> "Đạt rank/quyền " + (filter == null ? "?" : String.join(" hoặc ", nodes(filter)));
             case PERMISSION -> "Nhận từ quyền đặc biệt";
             case MANUAL -> "Do admin cấp";

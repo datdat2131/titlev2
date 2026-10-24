@@ -21,6 +21,8 @@ public final class TitleRegistry {
     public List<TitleDef> ofType(AchievementType t) { return byType.getOrDefault(t, List.of()); }
     public List<TitleDef> withState() { return withState; }
     public int size() { return byId.size(); }
+    /** Thứ hạng (1 = yếu nhất) theo thứ tự khai báo trong titles.yml; -1 nếu không có. */
+    public int rankOf(String id) { int i = 1; for (String k : byId.keySet()) { if (k.equalsIgnoreCase(id)) return i; i++; } return -1; }
 
     /** Tất cả nhiệm vụ đã đạt chưa. */
     public boolean complete(PlayerTitleData d, TitleDef def) {

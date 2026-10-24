@@ -110,6 +110,14 @@ public final class AstraxTitlesPlugin extends JavaPlugin {
             for (TitleDef t : registry.progressMax(d, AchievementType.KILL_STREAK, "PLAYER", pl)) onUnlocked(p, t);
         }
     }
+    /** Thông báo các danh hiệu mở khóa khi người chơi offline (do /titleadmin donate). */
+    public void flushNotify(Player p) {
+        PlayerTitleData d = cache.get(p.getUniqueId()); if (d == null) return;
+        for (String k : new ArrayList<>(d.progress().keySet())) {
+            if (!k.startsWith("_notify~") || d.progress().getOrDefault(k, 0L) < 1) continue;
+            d.removeProgress(k); TitleDef t = registry.get(k.substring(8)); if (t != null) onUnlocked(p, t);
+        }
+    }
     public void resetStreak(Player p) {
         PlayerTitleData d = cache.get(p.getUniqueId()); if (d == null) return;
         if (d.progressOf("_streak~any") != 0) d.setProgress("_streak~any", 0);

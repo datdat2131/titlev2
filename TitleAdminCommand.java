@@ -16,7 +16,7 @@ public final class TitleAdminCommand implements CommandExecutor, TabCompleter {
 
     @Override public boolean onCommand(CommandSender s, Command c, String l, String[] a) {
         if (!s.hasPermission("astraxtitles.admin")) { s.sendMessage("§cBạn không có quyền."); return true; }
-        if (a.length == 0) { s.sendMessage("§e/titleadmin §7reload | list | give <p> <id> | take <p> <id> | progress <p> <id> <nhiệm vụ#> <số> | check <p> | set <id> <trường> <giá trị> | buff <id> <attr> <giá trị|remove>"); return true; }
+        if (a.length == 0) { s.sendMessage("§e/titleadmin §7reload | list | give <p> <id> | take <p> <id> | progress <p> <id> <nhiệm vụ#> <số> | check <p> | donate <p> <số tiền> | set <id> <trường> <giá trị> | buff <id> <attr> <giá trị|remove>"); return true; }
         switch (a[0].toLowerCase(Locale.ROOT)) {
             case "reload" -> { plugin.reloadAll(); s.sendMessage("§aĐã tải lại: " + plugin.titles().size() + " danh hiệu."); }
             case "list" -> s.sendMessage("§7Danh hiệu: §f" + String.join(", ", plugin.titles().all().stream().map(TitleDef::id).toList()));
@@ -36,6 +36,15 @@ public final class TitleAdminCommand implements CommandExecutor, TabCompleter {
                 if (!a[3].equalsIgnoreCase("remove") && !plugin.buffs().validAttribute(a[2].toLowerCase().replace("generic.", ""))) { s.sendMessage("§cAttribute không tồn tại: " + a[2]); return true; }
                 String err = a[3].equalsIgnoreCase("remove") ? ed.removeBuff(a[1], a[2]) : ed.setBuff(a[1], a[2], a[3]);
                 if (err != null) s.sendMessage("§c" + err); else { plugin.reloadAll(); s.sendMessage("§aĐã cập nhật buff " + a[2] + " của " + a[1] + ". Bản sao lưu: titles.yml.bak"); } }
+            case "donate" -> { if (a.length < 3) return usage(s, "donate <player> <số tiền>   vd: donate Steve 500000");
+                long amt; try { amt = Long.parseLong(a[2].replace(".", "").replace(",", "")); } catch (NumberFormatException e) { s.sendMessage("§cSố tiền không hợp lệ."); return true; }
+                if (amt <= 0) { s.sendMessage("§cSố tiền phải lớn hơn 0."); return true; }
+                final long money = amt; Player online = Bukkit.getPlayerExact(a[1]);
+                if (online != null) { plugin.progress(online, AchievementType.DONATE_TOTAL, "VND", money); PlayerTitleData d = plugin.data(online.getUniqueId()); if (d != null) plugin.store().saveAsync(d);
+                    s.sendMessage("§aĐã cộng " + Requirement.money(money) + "đ nạp cho " + a[1]); }
+                else { OfflinePlayer off = Bukkit.getOfflinePlayerIfCached(a[1]); if (off == null) { s.sendMessage("§cKhông tìm thấy người chơi."); return true; }
+                    plugin.store().modifyOffline(off.getUniqueId(), d -> { for (TitleDef t : plugin.titles().progress(d, AchievementType.DONATE_TOTAL, "VND", money)) d.setProgress("_notify~" + t.id(), 1); })
+                        .thenAccept(r -> Bukkit.getScheduler().runTask(plugin, () -> s.sendMessage(r ? "§aĐã cộng " + Requirement.money(money) + "đ nạp cho " + a[1] + " §7(offline, sẽ báo khi họ vào game)" : "§cNgười chơi chưa có dữ liệu."))); } }
             case "check" -> { if (a.length < 2) return usage(s, "check <player>"); Player p = Bukkit.getPlayerExact(a[1]); if (p == null) s.sendMessage("§cNgười chơi không online."); else { plugin.checkStates(p);
                 s.sendMessage("§7Elementer: §f" + (plugin.elementer().available() ? "đã kết nối" : "không có/không đọc được") + " §7| NguyenTo: §f" + (plugin.nguyento().available() ? "đã kết nối" : "không có")); } }
             default -> s.sendMessage("§cLệnh không hợp lệ.");
@@ -55,8 +64,8 @@ public final class TitleAdminCommand implements CommandExecutor, TabCompleter {
         plugin.store().modifyOffline(off.getUniqueId(), change).thenAccept(r -> Bukkit.getScheduler().runTask(plugin, () -> s.sendMessage(r ? "§a" + ok + " cho " + name + " §7(offline)" : "§cNgười chơi chưa có dữ liệu.")));
     }
     @Override public List<String> onTabComplete(CommandSender s, Command c, String l, String[] a) {
-        if (a.length == 1) return List.of("reload", "list", "give", "take", "progress", "check", "set", "buff");
-        if (a.length == 2 && a[0].matches("(?i)give|take|progress|check")) return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+        if (a.length == 1) return List.of("reload", "list", "give", "take", "progress", "check", "set", "buff", "donate");
+        if (a.length == 2 && a[0].matches("(?i)give|take|progress|check|donate")) return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
         if (a.length == 2 && a[0].matches("(?i)set|buff")) return plugin.titles().all().stream().map(TitleDef::id).toList();
         if (a.length == 3 && a[0].equalsIgnoreCase("set")) return List.of("display", "description", "rarity", "icon");
         if (a.length == 3 && a[0].equalsIgnoreCase("buff")) return List.of("max_health", "attack_damage", "attack_speed", "movement_speed", "armor", "block_break_speed", "luck");

@@ -1,6 +1,8 @@
-# ===== 13 danh hiệu nhiệm vụ - sửa tự do rồi /titleadmin reload =====
+# ===== 24 danh hiệu nhiệm vụ - THỨ TỰ TRONG FILE = THỨ HẠNG (từ trên xuống: yếu -> mạnh) =====
+# Sửa tên/buff tự do rồi /titleadmin reload. Muốn đổi hạng thì di chuyển cả khối lên/xuống.
 # requirements:  danh sách nhiệm vụ, phải hoàn thành TẤT CẢ mới mở khóa (có thông báo cho người chơi khi mở khóa)
-#   type: PLAYTIME_MINUTES | KILL_PLAYER | KILL_MOB | BREAK_BLOCK | FISH | BOSS_KILL | TRAVEL_BLOCKS
+#   type: PLAYTIME_MINUTES | KILL_PLAYER | KILL_MOB (chỉ quái thù địch) | BREAK_BLOCK | FISH | BOSS_KILL | TRAVEL_BLOCKS
+#         DONATE_TOTAL      -> tổng tiền nạp (đ). Cộng bằng lệnh: /titleadmin donate <tên> <số tiền> (cho plugin nạp chạy lệnh console)
 #         KILL_STREAK       -> chuỗi hạ gục liên tiếp, reset khi chết (filter PLAYER = chỉ tính người chơi, ANY = tính cả quái)
 #         PERMISSION_NODE   -> có quyền/nhóm bất kỳ, vd group.vip3 (LuckPerms)
 #         ELEMENTER_UNLOCK  -> mở khóa nguyên tố ở plugin AstraxElementer  (filter: FIRE ICE LIGHTNING EARTH WIND LIGHT DARK DRAGON)
@@ -9,10 +11,11 @@
 #   filter: mục tiêu (ZOMBIE, DIAMOND_ORE, dragon_lord...) ; target: số lượng ; label: mô tả tùy chỉnh (không bắt buộc)
 # buffs:     attribute -> giá trị. Số thường = cộng thẳng, có % = cộng theo %  (2 máu = 1 tim)
 # passives:  nội tại chiến đấu. type + các tham số: value, value2 (%), chance (%), threshold (% máu), duration, cooldown (giây), filter
-#   OUTGOING_DAMAGE_PERCENT  DAMAGE_VS_BURNING_PERCENT  BOSS_DAMAGE_PERCENT  IGNITE_ON_HIT  SLOW_ON_HIT  WEAKEN_ON_HIT
+#   OUTGOING_DAMAGE_PERCENT  DAMAGE_VS_MOB_PERCENT (filter: loại mob, bỏ trống = mọi mob)  DAMAGE_VS_BURNING_PERCENT  BOSS_DAMAGE_PERCENT  IGNITE_ON_HIT  SLOW_ON_HIT  WEAKEN_ON_HIT
 #   LIFESTEAL_PERCENT  LIFESTEAL_ON_HIT  LIGHTNING_ON_HIT  BONUS_DAMAGE_ON_HIT  DODGE  DAMAGE_REDUCTION_PERCENT
 #   DAMAGE_REDUCTION_FROM_ELEMENT  HEAL_RECEIVED_PERCENT  LOW_HP_BOOST  LOW_HP_HEAL
 titles:
+  # ============ NHÓM 1 - TITLE CÀY ĐƯỢC (xếp từ yếu đến mạnh) ============
   tan_thu:
     display: "&7✦ Tân Thủ"
     description: "Bước chân đầu tiên trên hành trình."
@@ -21,6 +24,16 @@ titles:
     requirements:
       - {type: PLAYTIME_MINUTES, target: 15}
     buffs: { block_break_speed: 1, attack_speed: 0.15, max_health: 1 }
+
+  vuot_khoa_tan_binh:
+    display: "&f★ Vượt Khóa Tân Binh"
+    description: "Qua thử thách đầu tiên của tân binh."
+    rarity: COMMON
+    icon: STONE_PICKAXE
+    requirements:
+      - {type: PLAYTIME_MINUTES, target: 60, label: "Online đủ 1 giờ"}
+      - {type: BREAK_BLOCK, target: 1000}
+    buffs: { max_health: 2, block_break_speed: 1, movement_speed: "10%" }
 
   chien_binh:
     display: "&a⚔ Chiến Binh"
@@ -31,6 +44,35 @@ titles:
       - {type: KILL_PLAYER, target: 10}
     buffs: { attack_damage: 1, max_health: 2, attack_speed: 0.20 }
 
+  nha_tham_hiem:
+    display: "&a✿ Nhà Thám Hiểm"
+    description: "Mọi chân trời đều có dấu chân bạn."
+    rarity: UNCOMMON
+    icon: COMPASS
+    requirements:
+      - {type: TRAVEL_BLOCKS, target: 2000}
+    buffs: { movement_speed: "30%", max_health: 5, armor: 2 }
+
+  khai_khoang:
+    display: "&e✧ Khai Khoáng"
+    description: "Người đào mỏ không biết mệt."
+    rarity: UNCOMMON
+    icon: DIAMOND_PICKAXE
+    requirements:
+      - {type: BREAK_BLOCK, target: 4000}
+      - {type: KILL_PLAYER, target: 10}
+    buffs: { block_break_speed: 2, movement_speed: "20%", attack_speed: 0.15 }
+
+  tho_san_da_den:
+    display: "&8☠ Thợ Săn Da Đen"
+    description: "Khắc tinh của Wither Skeleton."
+    rarity: UNCOMMON
+    icon: WITHER_SKELETON_SKULL
+    requirements:
+      - {type: KILL_MOB, filter: WITHER_SKELETON, target: 300, label: "Tiêu diệt 300 Wither Skeleton"}
+    passives:
+      - {type: DAMAGE_VS_MOB_PERCENT, name: "Khắc Chế", value: 20, filter: WITHER_SKELETON}
+
   cuong_chien:
     display: "&c⚔ Cuồng Chiến"
     description: "Chiến đấu đến khi gục ngã."
@@ -39,6 +81,37 @@ titles:
     requirements:
       - {type: KILL_PLAYER, target: 40}
     buffs: { attack_damage: 1.25, max_health: 3, attack_speed: 0.30 }
+
+  kien_cuong:
+    display: "&c♥ Kiên Cường"
+    description: "Bền bỉ cùng server mỗi ngày."
+    rarity: RARE
+    icon: GOLDEN_APPLE
+    requirements:
+      - {type: PLAYTIME_MINUTES, target: 1440, label: "Online đủ 24 giờ"}
+    buffs: { max_health: 5, attack_speed: 0.4 }
+
+  tho_san_quai_vat:
+    display: "&2⚔ Thợ Săn Quái Vật"
+    description: "Quái vật nào cũng phải run sợ."
+    rarity: RARE
+    icon: IRON_AXE
+    requirements:
+      - {type: KILL_MOB, target: 2000, label: "Tiêu diệt 2000 quái vật"}
+    buffs: { attack_damage: 2 }
+    passives:
+      - {type: DAMAGE_VS_MOB_PERCENT, name: "Săn Quái", value: 10}
+
+  tho_san_boss:
+    display: "&6★ Thợ Săn Boss"
+    description: "Boss nào cũng phải cúi đầu."
+    rarity: EPIC
+    icon: WITHER_SKELETON_SKULL
+    requirements:
+      - {type: BOSS_KILL, target: 10, label: "Tiêu diệt 10 boss bất kỳ"}
+    buffs: { attack_damage: 2, attack_speed: 0.25 }
+    passives:
+      - {type: BOSS_DAMAGE_PERCENT, name: "Sát Boss", value: 50}
 
   do_sat:
     display: "&4☠ Đồ Sát"
@@ -49,6 +122,20 @@ titles:
       - {type: KILL_PLAYER, target: 100}
     buffs: { attack_damage: 2, max_health: 5, attack_speed: 0.40 }
 
+  bat_khuat:
+    display: "&3⚔ Chiến Binh Bất Khuất"
+    description: "Không gục ngã, không lùi bước."
+    rarity: LEGENDARY
+    icon: SHIELD
+    announce: true
+    requirements:
+      - {type: KILL_STREAK, filter: PLAYER, target: 50, label: "Đạt chuỗi hạ gục 50 người chơi (không chết)"}
+    buffs: { attack_damage: 2, max_health: 5 }
+    passives:
+      - {type: DAMAGE_REDUCTION_PERCENT, name: "Bất Khuất", value: 20}
+
+
+  # ============ NHÓM 2 - TITLE NGUYÊN TỐ (cần mở khóa nguyên tố ở Elementer / NguyenTo, xếp sau title cày được) ============
   hoa_vien:
     display: "&6☄ Hỏa Viễn"
     description: "Ngọn lửa cổ xưa nhận bạn làm chủ."
@@ -87,17 +174,18 @@ titles:
     passives:
       - {type: DAMAGE_REDUCTION_PERCENT, name: "Thạch Giáp", value: 10}
 
-  loi_de:
-    display: "&e⚡ Lôi Đế"
-    description: "Sấm sét nghe theo tiếng gọi."
+  bang_quang:
+    display: "&9✦ Băng Quang"
+    description: "Ánh sáng đóng băng mọi kẻ thù."
     rarity: EPIC
-    icon: LIGHTNING_ROD
+    icon: BLUE_ICE
     requirements:
-      - {type: NGUYENTO_UNLOCK, filter: set}
-      - {type: ELEMENTER_UNLOCK, filter: LIGHTNING}
-    buffs: { attack_damage: 1.5, attack_speed: 0.4 }
+      - {type: NGUYENTO_UNLOCK, filter: bang}
+      - {type: ELEMENTER_UNLOCK, filter: LIGHT}
+    buffs: { max_health: 6 }
     passives:
-      - {type: LIGHTNING_ON_HIT, name: "Lôi Kích", chance: 10, value: 50}
+      - {type: HEAL_RECEIVED_PERCENT, name: "Quang Dưỡng", value: 20}
+      - {type: SLOW_ON_HIT, name: "Hàn Quang", chance: 20, duration: 3, value: 1}
 
   phong_nha:
     display: "&f❖ Phong Nhã"
@@ -111,18 +199,31 @@ titles:
     passives:
       - {type: DODGE, name: "Phong Ảnh", chance: 20}
 
-  bang_quang:
-    display: "&9✦ Băng Quang"
-    description: "Ánh sáng đóng băng mọi kẻ thù."
+  loi_de:
+    display: "&e⚡ Lôi Đế"
+    description: "Sấm sét nghe theo tiếng gọi."
     rarity: EPIC
-    icon: BLUE_ICE
+    icon: LIGHTNING_ROD
     requirements:
-      - {type: NGUYENTO_UNLOCK, filter: bang}
-      - {type: ELEMENTER_UNLOCK, filter: LIGHT}
-    buffs: { max_health: 6 }
+      - {type: NGUYENTO_UNLOCK, filter: set}
+      - {type: ELEMENTER_UNLOCK, filter: LIGHTNING}
+    buffs: { attack_damage: 1.5, attack_speed: 0.4 }
     passives:
-      - {type: HEAL_RECEIVED_PERCENT, name: "Quang Dưỡng", value: 20}
-      - {type: SLOW_ON_HIT, name: "Hàn Quang", chance: 20, duration: 3, value: 1}
+      - {type: LIGHTNING_ON_HIT, name: "Lôi Kích", chance: 10, value: 50}
+
+  thanh_de:
+    display: "&e☀ Thánh Đế"
+    description: "Ánh sáng thần thánh dẫn đường."
+    rarity: LEGENDARY
+    icon: NETHER_STAR
+    announce: true
+    requirements:
+      - {type: NGUYENTO_UNLOCK, filter: anh_sang}
+    buffs: { attack_damage: 2.5, movement_speed: "20%", max_health: 5 }
+    passives:
+      - {type: BONUS_DAMAGE_ON_HIT, name: "Quang Kích", chance: 15, value: 40, filter: LIGHT}
+      - {type: DAMAGE_REDUCTION_FROM_ELEMENT, name: "Thánh Quang", value: 15, filter: DARK}
+      - {type: LOW_HP_HEAL, name: "Quang Hồi", threshold: 30, value: 10, value2: 10, duration: 5, cooldown: 30}
 
   long_than:
     display: "&c♛ Long Thần"
@@ -138,20 +239,6 @@ titles:
       - {type: BOSS_DAMAGE_PERCENT, name: "Long Uy", value: 15}
       - {type: BONUS_DAMAGE_ON_HIT, name: "Long Tức", chance: 15, value: 50, duration: 4, filter: FIRE}
       - {type: LOW_HP_BOOST, name: "Long Hồn", threshold: 30, value: 20, value2: 10, duration: 5, cooldown: 30}
-
-  thanh_de:
-    display: "&e☀ Thánh Đế"
-    description: "Ánh sáng thần thánh dẫn đường."
-    rarity: LEGENDARY
-    icon: NETHER_STAR
-    announce: true
-    requirements:
-      - {type: NGUYENTO_UNLOCK, filter: anh_sang}
-    buffs: { attack_damage: 2.5, movement_speed: "20%", max_health: 5 }
-    passives:
-      - {type: BONUS_DAMAGE_ON_HIT, name: "Quang Kích", chance: 15, value: 40, filter: LIGHT}
-      - {type: DAMAGE_REDUCTION_FROM_ELEMENT, name: "Thánh Quang", value: 15, filter: DARK}
-      - {type: LOW_HP_HEAL, name: "Quang Hồi", threshold: 30, value: 10, value2: 10, duration: 5, cooldown: 30}
 
   bong_toi:
     display: "&5☽ Bóng Tối"
@@ -171,54 +258,36 @@ titles:
       - {type: LOW_HP_BOOST, name: "Tử Vực", threshold: 25, value: 35, duration: 6, cooldown: 30}
       - {type: DAMAGE_REDUCTION_FROM_ELEMENT, name: "Hắc Giới", value: 15, filter: LIGHT}
 
-  khai_khoang:
-    display: "&e✧ Khai Khoáng"
-    description: "Người đào mỏ không biết mệt."
-    rarity: RARE
-    icon: DIAMOND_PICKAXE
-    requirements:
-      - {type: BREAK_BLOCK, target: 4000}
-      - {type: KILL_PLAYER, target: 10}
-    buffs: { block_break_speed: 2, movement_speed: "20%", attack_speed: 0.15 }
 
-  nha_tham_hiem:
-    display: "&a✿ Nhà Thám Hiểm"
-    description: "Mọi chân trời đều có dấu chân bạn."
-    rarity: RARE
-    icon: COMPASS
-    requirements:
-      - {type: TRAVEL_BLOCKS, target: 2000}
-    buffs: { movement_speed: "30%", max_health: 5, armor: 2 }
-
+  # ============ NHÓM 3 - TITLE VIP (VIP rank, sau đó 2 title nạp ở cuối cùng) ============
   vip:
     display: "&e✪ VIP"
     description: "Dành cho thành viên VIP3 trở lên."
-    rarity: EPIC
+    rarity: LEGENDARY
     icon: GOLD_INGOT
     requirements:
       # Chỉ cần MỘT trong các nhóm LuckPerms dưới đây (vip3 trở lên). Thêm/bớt nhóm tùy server, cách nhau bằng dấu phẩy.
       - {type: PERMISSION_NODE, filter: "group.vip3,group.vip4,group.vip5,group.vipmax", label: "Đạt rank VIP3 trở lên"}
     buffs: { attack_damage: 2, max_health: 6, armor: 3, attack_speed: 0.5 }
 
-  tho_san_boss:
-    display: "&6★ Thợ Săn Boss"
-    description: "Boss nào cũng phải cúi đầu."
-    rarity: EPIC
-    icon: WITHER_SKELETON_SKULL
-    requirements:
-      - {type: BOSS_KILL, target: 10, label: "Tiêu diệt 10 boss bất kỳ"}
-    buffs: { attack_damage: 2, attack_speed: 0.25 }
-    passives:
-      - {type: BOSS_DAMAGE_PERCENT, name: "Sát Boss", value: 50}
-
-  bat_khuat:
-    display: "&3⚔ Chiến Binh Bất Khuất"
-    description: "Không gục ngã, không lùi bước."
-    rarity: LEGENDARY
-    icon: SHIELD
+  ke_giau_co_quyen:
+    display: "&d♦ Kẻ Giàu Có Quyền!!!"
+    description: "Danh hiệu VIP dành cho người nạp 500.000đ."
+    rarity: MYTHIC
+    icon: EMERALD_BLOCK
     announce: true
     requirements:
-      - {type: KILL_STREAK, filter: PLAYER, target: 50, label: "Đạt chuỗi hạ gục 50 người chơi (không chết)"}
-    buffs: { attack_damage: 2, max_health: 5 }
+      - {type: DONATE_TOTAL, target: 500000}
+    buffs: { max_health: 6, attack_damage: 3, attack_speed: 0.5, armor: 3, movement_speed: "10%" }
+
+  dai_gia_astrax:
+    display: "&6&l♛ Đại Gia Astrax"
+    description: "Danh hiệu VIP tối thượng dành cho người nạp 1.000.000đ."
+    rarity: MYTHIC
+    icon: NETHERITE_BLOCK
+    announce: true
+    requirements:
+      - {type: DONATE_TOTAL, target: 1000000}
+    buffs: { max_health: 8, attack_damage: 4, attack_speed: 0.7, armor: 4, movement_speed: "20%" }
     passives:
-      - {type: DAMAGE_REDUCTION_PERCENT, name: "Bất Khuất", value: 20}
+      - {type: HEAL_RECEIVED_PERCENT, name: "Hồi Phục", value: 20}

@@ -141,4 +141,29 @@ class TitleSystemTest {
         assertTrue(Requirement.nodes(null).isEmpty()); assertTrue(Requirement.nodes(" , ").isEmpty());
         assertTrue(new Requirement(AchievementType.PERMISSION_NODE, "group.vip3,group.vip4", 1, null).describe().contains("group.vip3 hoặc group.vip4"));
     }
+    @Test void donateTotalsAccumulateAcrossTiers() {
+        TitleRegistry r = new TitleRegistry();
+        r.register(def("rich", Rarity.MYTHIC, count(AchievementType.DONATE_TOTAL, 500_000, null)));
+        r.register(def("tycoon", Rarity.MYTHIC, count(AchievementType.DONATE_TOTAL, 1_000_000, null)));
+        PlayerTitleData d = new PlayerTitleData(UUID.randomUUID());
+        assertTrue(r.progress(d, AchievementType.DONATE_TOTAL, "VND", 200_000).isEmpty());
+        var got = r.progress(d, AchievementType.DONATE_TOTAL, "VND", 300_000); assertEquals(1, got.size()); assertEquals("rich", got.get(0).id());
+        assertFalse(d.has("tycoon"));
+        assertEquals("tycoon", r.progress(d, AchievementType.DONATE_TOTAL, "VND", 500_000).get(0).id()); // 1.000.000 đạt tier 2
+        assertEquals("Nạp tổng cộng 500.000đ", count(AchievementType.DONATE_TOTAL, 500_000, null).describe()); assertEquals("1.000.000", Requirement.money(1_000_000));
+    }
+    @Test void rankFollowsDeclarationOrder() {
+        TitleRegistry r = new TitleRegistry();
+        r.register(def("weak", Rarity.COMMON)); r.register(def("mid", Rarity.RARE)); r.register(def("top", Rarity.MYTHIC));
+        assertEquals(1, r.rankOf("weak")); assertEquals(3, r.rankOf("TOP")); assertEquals(-1, r.rankOf("none"));
+        assertEquals(List.of("weak", "mid", "top"), r.all().stream().map(TitleDef::id).toList());
+    }
+    @Test void offlineNotifyFlagRoundTrip() {
+        PlayerTitleData d = new PlayerTitleData(UUID.randomUUID()); d.setProgress("_notify~rich", 1); assertEquals(1, d.progressOf("_notify~rich"));
+        d.removeProgress("_notify~rich"); assertEquals(0, d.progressOf("_notify~rich"));
+    }
+    @Test void mobDamagePassiveDescription() {
+        assertTrue(new PassiveDef(PassiveType.DAMAGE_VS_MOB_PERCENT, "Săn Quái", 10, 0, 100, 0, 0, 0, null).describe().contains("+10% sát thương lên quái vật"));
+        assertTrue(new PassiveDef(PassiveType.DAMAGE_VS_MOB_PERCENT, null, 20, 0, 100, 0, 0, 0, "WITHER_SKELETON").describe().contains("Wither Skeleton"));
+    }
 }

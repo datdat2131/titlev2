@@ -10,6 +10,16 @@ public record PassiveDef(PassiveType type, String name, double value, double val
                          int duration, int cooldown, String filter) {
     static String n(double d) { return d == Math.rint(d) ? String.valueOf((long) d) : String.format(Locale.US, "%.1f", d); }
 
+    private static String mobName(String f) {
+        StringBuilder sb = new StringBuilder();
+        for (String part : f.split("[,|]")) {
+            if (part.isBlank()) continue; if (sb.length() > 0) sb.append(", ");
+            for (String w : part.trim().toLowerCase(Locale.ROOT).split("_")) if (!w.isEmpty()) sb.append(Character.toUpperCase(w.charAt(0))).append(w.substring(1)).append(' ');
+            sb.setLength(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+
     private String elementName(String f) {
         if (f == null) return "?";
         String u = f.toUpperCase(Locale.ROOT);
@@ -22,6 +32,7 @@ public record PassiveDef(PassiveType type, String name, double value, double val
         String c = chance >= 100 ? "" : n(chance) + "% cơ hội ";
         String body = switch (type) {
             case OUTGOING_DAMAGE_PERCENT -> "+" + n(value) + "% sát thương gây ra";
+            case DAMAGE_VS_MOB_PERCENT -> "+" + n(value) + "% sát thương lên " + (filter == null || filter.isBlank() || filter.equalsIgnoreCase("ALL") ? "quái vật (mob)" : mobName(filter));
             case DAMAGE_VS_BURNING_PERCENT -> "+" + n(value) + "% sát thương lên mục tiêu đang cháy";
             case BOSS_DAMAGE_PERCENT -> "+" + n(value) + "% sát thương khi đánh Boss";
             case IGNITE_ON_HIT -> c + "đòn đánh thiêu đốt mục tiêu " + duration + "s";

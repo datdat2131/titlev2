@@ -45,6 +45,13 @@ public final class PassiveListener implements Listener {
     private static double maxHp(LivingEntity e) { AttributeInstance a = e.getAttribute(Attribute.MAX_HEALTH); return a == null ? 20 : a.getValue(); }
     private void heal(Player p, double amount) { if (amount > 0 && !p.isDead()) p.setHealth(Math.min(maxHp(p), p.getHealth() + amount)); } // setHealth không gọi sự kiện hồi máu -> không nhân hai lần
 
+    /** filter rỗng/ALL = mọi mob; ngược lại danh sách EntityType (vd WITHER_SKELETON, hoặc ZOMBIE,SKELETON). */
+    private static boolean mobMatches(String filter, Entity target) {
+        if (filter == null || filter.isBlank() || filter.equalsIgnoreCase("ALL")) return true;
+        for (String s : filter.split("[,|]")) if (s.trim().equalsIgnoreCase(target.getType().name())) return true;
+        return false;
+    }
+
     private boolean isBoss(Entity e) { return e instanceof Boss || plugin.elementer().bossId(e) != null; }
 
     /** Nguyên tố của kẻ tấn công: nguyên tố Elementer đang dùng (người chơi) hoặc nguyên tố của boss Elementer. */
@@ -83,6 +90,7 @@ public final class PassiveListener implements Listener {
             case OUTGOING_DAMAGE_PERCENT -> mult += p.value() / 100;
             case DAMAGE_VS_BURNING_PERCENT -> { if (target.getFireTicks() > 0) mult += p.value() / 100; }
             case BOSS_DAMAGE_PERCENT -> { if (isBoss(target)) mult += p.value() / 100; }
+            case DAMAGE_VS_MOB_PERCENT -> { if (!(target instanceof Player) && mobMatches(p.filter(), target)) mult += p.value() / 100; }
             default -> { }
         }
         if (b != null && b.until >= now) mult += b.dmgPct / 100;

@@ -40,7 +40,8 @@ public final class TitleGui implements Listener {
         PlayerTitleData d = plugin.data(p.getUniqueId()); if (d == null) { p.sendMessage("§cDữ liệu chưa tải xong."); return; }
         List<TitleDef> list = new ArrayList<>();
         for (TitleDef t : plugin.titles().all()) if (!t.hidden() || d.has(t.id())) list.add(t);
-        list.sort(Comparator.comparing((TitleDef t) -> !d.has(t.id())).thenComparing(t -> -t.rarity().ordinal())); // đã mở lên trước
+        if ("UNLOCKED_FIRST".equalsIgnoreCase(plugin.getConfig().getString("gui.sort", "RANK"))) list.sort(Comparator.comparing((TitleDef t) -> !d.has(t.id()))); // sort ổn định: đã mở lên trước, giữ thứ hạng
+        // mặc định RANK: đúng thứ tự khai báo trong titles.yml (yếu -> mạnh)
         int pages = Math.max(1, (list.size() + PER_PAGE - 1) / PER_PAGE); page = Math.max(0, Math.min(page, pages - 1));
         Holder h = new Holder(); h.page = page;
         h.inv = Bukkit.createInventory(h, 54, raw("§6✦ Danh hiệu §8(" + (page + 1) + "/" + pages + ") §7" + d.unlocked().size() + "/" + plugin.titles().size()));
@@ -61,7 +62,7 @@ public final class TitleGui implements Listener {
         ItemStack it = new ItemStack(has ? m : Material.GRAY_DYE); ItemMeta meta = it.getItemMeta();
         meta.displayName(c((has ? "" : "&8") + t.display()));
         List<Component> lore = new ArrayList<>();
-        lore.add(raw(t.rarity().color() + t.rarity().display()));
+        lore.add(raw(t.rarity().color() + t.rarity().display() + " §8| §7Hạng §f#" + plugin.titles().rankOf(t.id()) + "§7/" + plugin.titles().size()));
         if (!t.description().isBlank()) lore.add(c("&7" + t.description()));
         if (!has && !t.requirements().isEmpty()) { // nhiệm vụ + tiến độ
             lore.add(Component.empty()); lore.add(raw("§bNhiệm vụ:"));

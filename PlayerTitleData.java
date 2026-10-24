@@ -40,6 +40,7 @@ public final class PlayerTitleData {
         long v = progress.merge(k, amount, (a, b) -> a + b < 0 ? Long.MAX_VALUE : a + b);
         dirty = true; return v;
     }
+    public void removeProgress(String id) { if (progress.remove(id.toLowerCase(Locale.ROOT)) != null) dirty = true; }
     public void setProgress(String id, long v) { progress.put(id.toLowerCase(Locale.ROOT), Math.max(0, v)); dirty = true; }
 
     public PlayerTitleData copy() {
